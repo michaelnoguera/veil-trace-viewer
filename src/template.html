@@ -6,18 +6,21 @@
 <!--
   The security policy of the page. A result that a person opens is data from
   an unknown source, so the page gives it nothing to work with:
-    default-src 'none'   no request to a server: no fetch, image, font, frame
+    default-src 'none'   no request to a server: no image, font, frame, worker
+    connect-src          fetch, to load a result from a link. The script asks
+                         first when the link came with the page (?url=).
     script-src  (hash)   only the script of this file runs. No other inline
                          script, no script from a URL, no eval.
     style-src            inline styles only (Veil's display adds its own)
     base-uri, form-action 'none'
   The build puts the hash of the script in place of __SCRIPT_HASH__.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src '__SCRIPT_HASH__'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https: http:; script-src '__SCRIPT_HASH__'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Veil trace viewer</title>
 <!--
-  Shows the result of a Veil model check in a browser. No server, no network.
+  Shows the result of a Veil model check in a browser. No server; the only
+  network request loads a result from a link, when a person asks for one.
 
   The trace is drawn by Veil's own component (widget/src/traceDisplay.tsx of
   https://github.com/verse-lab/veil, Apache-2.0), bundled with React (MIT).
@@ -148,7 +151,40 @@
     font-family: var(--vscode-editor-font-family); font-size: 12px;
     color: var(--vscode-descriptionForeground); margin-bottom: 8px; overflow-wrap: anywhere;
   }
-  @media print { header.bar button, header.bar label { display: none; } }
+  .paste { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .paste textarea {
+    width: 100%; min-height: 200px; resize: vertical; padding: 8px;
+    font-family: var(--vscode-editor-font-family); font-size: 12px;
+    color: var(--vscode-editor-foreground); background: var(--vscode-editorWidget-background);
+    border: 1px solid var(--vscode-panel-border); border-radius: 4px;
+  }
+  .paste textarea:focus-visible { outline: 2px solid var(--vscode-focusBorder); outline-offset: 1px; }
+  .paste .actions, .confirm .actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .paste .hint { font-size: 12px; color: var(--vscode-descriptionForeground); margin-right: auto; align-self: center; }
+  .confirm {
+    background: var(--vscode-inputValidation-warningBackground);
+    border: 1px solid var(--vscode-inputValidation-warningBorder);
+    color: var(--vscode-inputValidation-warningForeground);
+    border-radius: 4px; padding: 12px; margin-bottom: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .confirm p { margin: 0; }
+  .confirm code {
+    font-family: var(--vscode-editor-font-family); font-size: 12px; overflow-wrap: anywhere;
+  }
+  .confirm strong.host { font-family: var(--vscode-editor-font-family); }
+  .paste button, .confirm button {
+    font: inherit; font-size: 12px; border-radius: 4px; padding: 4px 12px; cursor: pointer;
+    color: var(--vscode-foreground); background: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-panel-border);
+  }
+  .paste button.primary, .confirm button.primary {
+    color: var(--vscode-button-foreground); background: var(--vscode-button-background);
+    border-color: var(--vscode-button-background);
+  }
+  .paste button.primary:hover:not(:disabled), .confirm button.primary:hover { background: var(--vscode-button-hoverBackground); }
+  .paste button:disabled { opacity: .5; cursor: default; }
+  @media print { header.bar button, header.bar label, .paste { display: none; } }
 </style>
 </head>
 <body>

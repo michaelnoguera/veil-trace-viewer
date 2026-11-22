@@ -7,13 +7,27 @@ VS Code extension use.
 
 ## Use
 
-**In a browser.** Open `index.html`. Drop a result on the page, or use
+**In a browser.** Open `index.html`. Drop a result on the page, paste it
+(anywhere on the page, or in the box that "Paste JSON…" opens), or use
 "Open JSON…". The page reads:
 
 - the JSON that a compiled model checker prints on stdout;
 - a result exported from the Veil VS Code extension.
 
 "Save as HTML" writes a copy of the page with the result inside it.
+
+**From a link.** Paste a link instead of JSON, and the page fetches it:
+
+- a gist page, `https://gist.github.com/<user>/<id>` (its first `.json`
+  file, or the file that a `#file-…` anchor names);
+- a file page on GitHub, `https://github.com/<owner>/<repo>/blob/…`;
+- any other `http` or `https` link to the JSON, such as a raw file.
+
+The server of the link must let other sites read the file (CORS); GitHub
+does. After a link loads, the address of the page holds it as
+`?url=<link>`, so the address can be shared. A page opened with `?url=`
+asks before it loads: it shows the link and its server, and fetches
+nothing until the person clicks "Load".
 
 **From the command line.**
 
@@ -33,7 +47,8 @@ network.
 `index.html` is the whole site: one file, with its script and styles inside
 it. Any static host can serve it. People open their own result files in the
 page. The browser reads each file from the disk of that person; the server
-never gets it, and the site keeps no results.
+never gets it, and the site keeps no results. A result loaded from a link
+comes from the server of the link, not from the site.
 
 A host that forbids inline scripts with its own Content-Security-Policy
 header cannot serve the page as it is.
@@ -48,12 +63,14 @@ A result file can come from anywhere, so the page treats it as data only.
 
   | Directive | Effect |
   | --- | --- |
-  | `default-src 'none'` | No request to any server: no fetch, image, font, frame or worker. The page cannot send a result, or anything else, to another place. |
+  | `default-src 'none'` | No image, font, frame or worker from any server. |
+  | `connect-src https: http:` | `fetch` may reach any server, to load a result from a link. The page fetches only the link that a person pasted, or a `?url=` link after the person clicks "Load". It sends no result anywhere. |
   | `script-src 'sha256-…'` | Only the script of the page runs, by its hash. No other inline script, no script from a URL, no event-handler attribute. |
   | `style-src 'unsafe-inline'` | Inline styles only. Veil's display adds its styles while it runs, so they cannot have a hash. |
   | `base-uri 'none'`, `form-action 'none'` | No change of the base URL, no form submission. |
 
 - The page does not read or write cookies, `localStorage` or other storage.
+- A fetch sends no cookies and no referrer.
 - "Save as HTML" and `veil-trace.py` keep the policy and the script without
   change, so the hash is correct in the pages that they write.
 
@@ -67,6 +84,9 @@ Limits:
   header is not tested here.
 - The policy has no effect on what a person does with a file after "Save as
   HTML".
+- `connect-src` cannot limit fetches to the links that a person chose; that
+  rule is kept by the script of the page, which is the only script that can
+  run.
 
 ## Build
 
