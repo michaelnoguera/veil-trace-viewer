@@ -1,6 +1,7 @@
 {
   "name": "veil-trace-viewer",
   "private": true,
+  "license": "Apache-2.0",
   "description": "A browser viewer for the results of Veil model checks. It builds index.html from Veil's trace display; the versions are those of Veil's VS Code extension.",
   "type": "module",
   "scripts": {

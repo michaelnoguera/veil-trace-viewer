@@ -48,6 +48,7 @@ const result = await esbuild.build({
   entryPoints: [path.join(here, 'src/standalone.tsx')],
   bundle: true,
   write: false,
+  metafile: true,
   minify: true,
   legalComments: 'none',
   jsx: 'automatic',
@@ -69,13 +70,44 @@ try {
 // "</script" inside the bundle would end the script element.
 const bundle = `/* Veil ${revision} */\n${result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script')}`;
 const template = readFileSync(path.join(here, 'src/template.html'), 'utf8');
-for (const mark of ['/*__BUNDLE__*/', "'__SCRIPT_HASH__'"]) {
+for (const mark of ['/*__BUNDLE__*/', "'__SCRIPT_HASH__'", '<!--__NOTICES__-->']) {
   if (template.split(mark).length !== 2) throw new Error(`template.html must have ${mark} one time`);
 }
 // The security policy of the page permits only this script, by its hash. The hash is of the
 // text between the script tags, so the template must not add a character there.
 const hash = createHash('sha256').update(bundle, 'utf8').digest('base64');
+
+// The licences of what the bundle holds, which the page must carry: this viewer, Veil, and each
+// npm package that esbuild put in the bundle, with packages of the same licence text together.
+function licenseText(dir) {
+  for (const name of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE']) {
+    const file = path.join(dir, name);
+    if (existsSync(file)) return readFileSync(file, 'utf8').trim();
+  }
+  throw new Error(`${dir} has no LICENSE file`);
+}
+const packages = new Map();
+for (const input of Object.keys(result.metafile.inputs)) {
+  const match = /node_modules\/((?:@[^/]+\/)?[^/]+)\//.exec(input);
+  if (!match || packages.has(match[1])) continue;
+  const dir = path.dirname(require.resolve(`${match[1]}/package.json`));
+  packages.set(match[1], { version: JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8')).version, text: licenseText(dir) });
+}
+// Each licence text once, after the names of everything under it.
+const byText = new Map();
+const add = (what, text) => byText.set(text, [...(byText.get(text) ?? []), what]);
+add('Veil Trace Viewer, https://github.com/michaelnoguera/veil-trace-viewer\nCopyright 2026 Michael Noguera', licenseText(here));
+add(`Veil, https://github.com/verse-lab/veil, revision ${revision}: widget/src and editors/vscode/webview`, licenseText(veil));
+for (const [name, { version, text }] of [...packages].sort()) add(`${name} ${version}`, text);
+const notices = [...byText]
+  .map(([text, names]) => `${names.join('\n\n')}\n\n${text}`)
+  .join('\n\n' + '='.repeat(78) + '\n\n');
+// An HTML comment ends at "--" followed by ">", and should not hold "--" at all.
+if (notices.includes('--')) throw new Error('A licence text has "--", which cannot be in an HTML comment.');
+const noticeComment = `<!--\nLicences of this page and of the software bundled in it.\n\n${notices}\n-->`;
+
 writeFileSync(out, template
   .replace("'__SCRIPT_HASH__'", () => `'sha256-${hash}'`)
+  .replace('<!--__NOTICES__-->', () => noticeComment)
   .replace('/*__BUNDLE__*/', () => bundle));
-console.log(`Wrote ${out} (${Math.round(bundle.length / 1024)} kB of script, Veil ${revision})`);
+console.log(`Wrote ${out} (${Math.round(bundle.length / 1024)} kB of script, Veil ${revision}; licences of ${[...packages.keys()].join(', ')})`);
