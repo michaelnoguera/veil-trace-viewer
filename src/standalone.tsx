@@ -104,7 +104,7 @@ async function fetchLink(link: string): Promise<{ text: string; name: string }> 
     throw new Error('This is not a valid link.');
   }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') throw new Error('Only http and https links can be loaded.');
-  const base = (path: string) => decodeURIComponent(path.split('/').pop() ?? '').replace(/\.json$/i, '');
+  const base = (path: string) => decodeURIComponent(path.split('/').pop() ?? '');
   const parts = url.pathname.split('/').filter(Boolean);
 
   if (url.hostname === 'gist.github.com') {
@@ -176,7 +176,7 @@ function App() {
     setBusy(null);
     file.text().then(text => {
       if (mine !== generation.current) return;
-      if (show(text, file.name.replace(/\.json$/i, ''), file.name)) { setPasting(false); setLinkParam(null); }
+      if (show(text, file.name, file.name)) { setPasting(false); setLinkParam(null); }
     });
   }, [show]);
 
@@ -220,7 +220,7 @@ function App() {
   }, [take]);
 
   React.useEffect(() => {
-    document.title = loaded?.name ? `${loaded.name} — Veil trace` : 'Veil trace viewer';
+    document.title = loaded?.name ? `${loaded.name} — Veil Trace Viewer` : 'Veil Trace Viewer';
   }, [loaded]);
 
   React.useEffect(() => {
@@ -245,7 +245,7 @@ function App() {
   return (
     <>
       <header className="bar">
-        <h1>Veil trace viewer</h1>
+        <h1>Veil Trace Viewer</h1>
         {loaded?.name && <span className="name">{loaded.name}</span>}
         <span className="spacer" />
         {loaded && (
@@ -271,7 +271,7 @@ function App() {
         <button aria-expanded={pasting} onClick={() => setPasting(p => !p)}>Paste JSON…</button>
         <button
           disabled={!loaded}
-          onClick={() => loaded && download(`${(loaded.name || 'veil-trace').replace(/[^\w.-]+/g, '_')}.html`, pageWith(loaded))}
+          onClick={() => loaded && download(`${(loaded.name.replace(/\.json$/i, '') || 'veil-trace').replace(/[^\w.-]+/g, '_')}.html`, pageWith(loaded))}
         >
           Save as HTML
         </button>
@@ -314,7 +314,7 @@ function App() {
         {error && <div className="error">{error}</div>}
         {loaded?.notes.map(note => <div className="note" key={note}>{note}</div>)}
         {loaded
-          ? <ModelCheckerView result={loaded.result} layout={layout} />
+          ? <div className="trace"><ModelCheckerView result={loaded.result} layout={layout} /></div>
           : (
             <div className={over ? 'empty over' : 'empty'}>
               <p>Drop a Veil model-checking result here, paste it or a link to it, or use “Open JSON…”.</p>
@@ -322,6 +322,13 @@ function App() {
             </div>
           )}
       </main>
+      <footer className="site">
+        This client-side-only tool renders{' '}
+        <a href="https://github.com/verse-lab/veil/blob/main/widget/src/traceDisplay.tsx" target="_blank" rel="noopener noreferrer">
+          Veil’s trace display
+        </a>{' '}
+        locally in your browser.
+      </footer>
     </>
   );
 }

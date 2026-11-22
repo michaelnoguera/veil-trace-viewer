@@ -17,7 +17,7 @@
 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https: http:; script-src '__SCRIPT_HASH__'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<title>Veil trace viewer</title>
+<title>Veil Trace Viewer</title>
 <!--
   Shows the result of a Veil model check in a browser. No server; the only
   network request loads a result from a link, when a person asks for one.
@@ -28,77 +28,103 @@
 -->
 <style data-static>
   /* Veil's component uses the colours of the VS Code theme. A browser has
-     none, so these are the values of the default light and dark themes. */
+     none, so these are the values of GitHub Light Default and GitHub Dark
+     Default (themes/light-default.json and dark-default.json of GitHub's
+     VS Code theme, version 6.3.5). Where a theme sets no value, VS Code uses
+     its built-in default for light or dark themes, and so does this page:
+     the lines marked "default". Only the variables that Veil's display or
+     this page use are here. */
   :root {
     --vscode-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     --vscode-font-size: 13px;
     --vscode-editor-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    --vscode-foreground: #3b3b3b;
-    --vscode-descriptionForeground: #6b6b6b;
-    --vscode-editor-foreground: #1f1f1f;
+    /* GitHub Light Default */
+    --vscode-foreground: #1f2328;
+    --vscode-descriptionForeground: #656d76;
+    --vscode-editor-foreground: #1f2328;
     --vscode-editor-background: #ffffff;
-    --vscode-editorWidget-background: #f8f8f8;
-    --vscode-editorGroupHeader-tabsBackground: #f3f3f3;
-    --vscode-panel-border: rgba(128, 128, 128, 0.35);
-    --vscode-focusBorder: #005fb8;
-    --vscode-textLink-foreground: #005fb8;
-    --vscode-list-hoverBackground: #f0f0f0;
-    --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31);
-    --vscode-activityBarBadge-background: #005fb8;
+    --vscode-editorWidget-background: #ffffff;
+    --vscode-editorGroupHeader-tabsBackground: #f6f8fa;
+    --vscode-panel-border: #d0d7de;
+    --vscode-focusBorder: #0969da;
+    --vscode-textLink-foreground: #0969da;
+    --vscode-list-hoverBackground: #eaeef280;
+    --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31); /* default */
+    --vscode-activityBarBadge-background: #0969da;
     --vscode-activityBarBadge-foreground: #ffffff;
-    --vscode-button-background: #005fb8;
+    --vscode-button-background: #1f883d;
     --vscode-button-foreground: #ffffff;
-    --vscode-button-hoverBackground: #0258a8;
-    --vscode-inputValidation-errorBackground: #f2dede;
-    --vscode-inputValidation-errorBorder: #be1100;
-    --vscode-inputValidation-errorForeground: #3b3b3b;
-    --vscode-inputValidation-warningBackground: #f6f5d2;
-    --vscode-inputValidation-warningBorder: #b89500;
-    --vscode-inputValidation-warningForeground: #3b3b3b;
-    --vscode-inputValidation-infoBackground: #d6ecf2;
-    --vscode-inputValidation-infoBorder: #007acc;
-    --vscode-inputValidation-infoForeground: #3b3b3b;
-    --vscode-editorHoverWidget-background: #f8f8f8;
-    --vscode-editorHoverWidget-foreground: #3b3b3b;
-    --vscode-editorHoverWidget-border: #c8c8c8;
-    --vscode-editor-selectionBackground: #add6ff;
-    --vscode-editor-selectionHighlightBorder: transparent;
-    --vscode-editor-findMatchHighlightBackground: rgba(234, 92, 0, 0.33);
-    --vscode-editor-findMatchHighlightBorder: transparent;
-    --vscode-diffEditor-insertedTextBackground: rgba(156, 204, 44, 0.25);
-    --vscode-diffEditor-insertedLineBackground: rgba(155, 185, 85, 0.2);
-    --vscode-diffEditor-removedTextBackground: rgba(255, 0, 0, 0.2);
-    --vscode-diffEditor-removedLineBackground: rgba(255, 0, 0, 0.2);
-    --vscode-notificationsInfoIcon-foreground: #1a85ff;
+    --vscode-button-hoverBackground: #1a7f37;
+    --vscode-inputValidation-errorBackground: #f2dede; /* default */
+    --vscode-inputValidation-errorBorder: #be1100; /* default */
+    --vscode-inputValidation-warningBackground: #f6f5d2; /* default */
+    --vscode-inputValidation-warningBorder: #b89500; /* default */
+    --vscode-inputValidation-infoBackground: #d6ecf2; /* default */
+    --vscode-inputValidation-infoBorder: #007acc; /* default */
+    --vscode-editorHoverWidget-background: #ffffff; /* default: the widget background */
+    --vscode-editorHoverWidget-foreground: #1f2328; /* default: the foreground */
+    --vscode-editorHoverWidget-border: #c8c8c8; /* default */
+    --vscode-editor-selectionBackground: #add6ff; /* default */
+    --vscode-editor-selectionHighlightBorder: transparent; /* unset */
+    --vscode-editor-findMatchHighlightBackground: #fae17d80;
+    --vscode-editor-findMatchHighlightBorder: transparent; /* unset */
+    /* Changed values. The theme's colours are translucent (#6fdd8b80,
+       #ff818266), so on a changed row they would mix with its yellow. These
+       are the same colours made solid, as they look on the card background,
+       so that they look the same on any row. Veil's display draws a ring
+       around a changed value in the line colours, which are transparent here
+       to hide it (the theme has #aceebb4d and #ffcecb4d). */
+    --vscode-diffEditor-insertedTextBackground: #b7eec5;
+    --vscode-diffEditor-insertedLineBackground: transparent;
+    --vscode-diffEditor-removedTextBackground: #ffcdcd;
+    --vscode-diffEditor-removedLineBackground: transparent;
+    --vscode-notificationsInfoIcon-foreground: #0969da;
+    /* All the text of the page header: black, or white on the dark theme. */
+    --header-foreground: #000000;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --vscode-foreground: #cccccc;
-      --vscode-descriptionForeground: #9d9d9d;
-      --vscode-editor-foreground: #d4d4d4;
-      --vscode-editor-background: #1e1e1e;
-      --vscode-editorWidget-background: #252526;
-      --vscode-editorGroupHeader-tabsBackground: #252526;
-      --vscode-focusBorder: #007fd4;
-      --vscode-textLink-foreground: #3794ff;
-      --vscode-list-hoverBackground: #2a2d2e;
-      --vscode-toolbar-hoverBackground: rgba(90, 93, 94, 0.31);
-      --vscode-activityBarBadge-background: #007acc;
-      --vscode-button-background: #0e639c;
-      --vscode-button-hoverBackground: #1177bb;
-      --vscode-inputValidation-errorBackground: #5a1d1d;
-      --vscode-inputValidation-errorForeground: #cccccc;
-      --vscode-inputValidation-warningBackground: #352a05;
-      --vscode-inputValidation-warningForeground: #cccccc;
-      --vscode-inputValidation-infoBackground: #063b49;
-      --vscode-inputValidation-infoForeground: #cccccc;
-      --vscode-editorHoverWidget-background: #252526;
-      --vscode-editorHoverWidget-foreground: #cccccc;
-      --vscode-editorHoverWidget-border: #454545;
-      --vscode-editor-selectionBackground: #264f78;
-      --vscode-diffEditor-insertedTextBackground: rgba(156, 204, 44, 0.2);
-      --vscode-notificationsInfoIcon-foreground: #3794ff;
+      /* GitHub Dark Default */
+      --vscode-foreground: #e6edf3;
+      --vscode-descriptionForeground: #7d8590;
+      --vscode-editor-foreground: #e6edf3;
+      --vscode-editor-background: #0d1117;
+      --vscode-editorWidget-background: #161b22;
+      --vscode-editorGroupHeader-tabsBackground: #010409;
+      --vscode-panel-border: #30363d;
+      --vscode-focusBorder: #1f6feb;
+      --vscode-textLink-foreground: #2f81f7;
+      --vscode-list-hoverBackground: #6e76811a;
+      --vscode-toolbar-hoverBackground: rgba(90, 93, 94, 0.31); /* default */
+      --vscode-activityBarBadge-background: #1f6feb;
+      --vscode-activityBarBadge-foreground: #ffffff;
+      --vscode-button-background: #238636;
+      --vscode-button-foreground: #ffffff;
+      --vscode-button-hoverBackground: #2ea043;
+      --vscode-inputValidation-errorBackground: #5a1d1d; /* default */
+      --vscode-inputValidation-errorBorder: #be1100; /* default */
+      --vscode-inputValidation-warningBackground: #352a05; /* default */
+      --vscode-inputValidation-warningBorder: #b89500; /* default */
+      --vscode-inputValidation-infoBackground: #063b49; /* default */
+      --vscode-inputValidation-infoBorder: #007acc; /* default */
+      --vscode-editorHoverWidget-background: #161b22; /* default: the widget background */
+      --vscode-editorHoverWidget-foreground: #e6edf3; /* default: the foreground */
+      --vscode-editorHoverWidget-border: #454545; /* default */
+      --vscode-editor-selectionBackground: #264f78; /* default */
+      --vscode-editor-selectionHighlightBorder: transparent; /* unset */
+      /* Changed rows: a darker yellow than the theme's #f2cc6080, so that
+         the text on them stays readable. */
+      --vscode-editor-findMatchHighlightBackground: rgba(187, 128, 9, 0.25);
+      --vscode-editor-findMatchHighlightBorder: transparent; /* unset */
+      /* The theme's #3fb9504d and #ff7b724d made solid, and no ring, as for
+         the light theme. */
+      --vscode-diffEditor-insertedTextBackground: #224b30;
+      --vscode-diffEditor-insertedLineBackground: transparent;
+      --vscode-diffEditor-removedTextBackground: #5c383a;
+      --vscode-diffEditor-removedLineBackground: transparent;
+      --vscode-notificationsInfoIcon-foreground: #2f81f7;
+      --header-foreground: #ffffff;
       color-scheme: dark;
     }
   }
@@ -114,29 +140,48 @@
   header.bar {
     display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
     padding: 8px 16px; border-bottom: 1px solid var(--vscode-panel-border);
-    background: var(--vscode-editorGroupHeader-tabsBackground);
+    background: var(--vscode-editor-background);
+    color: var(--header-foreground);
   }
   header.bar h1 { font-size: 14px; margin: 0; font-weight: 600; }
   header.bar .name {
-    font-family: var(--vscode-editor-font-family); font-size: 12px;
-    color: var(--vscode-descriptionForeground); overflow-wrap: anywhere;
+    font-size: 13px;
+    overflow-wrap: anywhere;
   }
   header.bar .spacer { flex: 1; }
+  /* The colours that Veil's display gives its own controls: a border of its
+     panels and the hover of its toolbar links. */
   header.bar button, header.bar label.btn, header.bar select {
-    font: inherit; font-size: 12px; color: var(--vscode-foreground);
-    background: var(--vscode-editor-background);
+    font: inherit; font-size: 12px; color: inherit;
+    background: transparent;
     border: 1px solid var(--vscode-panel-border); border-radius: 4px;
     padding: 4px 10px; cursor: pointer;
   }
-  header.bar select { padding: 3px 6px; }
-  header.bar button:hover:not(:disabled), header.bar label.btn:hover { border-color: var(--vscode-focusBorder); }
+  header.bar select { padding: 3px 6px; background: var(--vscode-editor-background); }
+  header.bar button:hover:not(:disabled), header.bar label.btn:hover, header.bar select:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+  }
   header.bar button:disabled { opacity: .5; cursor: default; }
   header.bar button:focus-visible, header.bar label.btn:focus-within, header.bar select:focus-visible {
     outline: 2px solid var(--vscode-focusBorder); outline-offset: 1px;
   }
-  header.bar label.pick { font-size: 12px; color: var(--vscode-descriptionForeground); }
+  header.bar label.pick { font-size: 12px; }
   header.bar input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
-  main { padding: 12px 16px; }
+  /* The footer sits at the bottom of the window, or below the trace when it is longer. */
+  #root { display: flex; flex-direction: column; min-height: 100vh; }
+  /* No padding on main, so that Veil's toolbar starts right below the header.
+     The page's own boxes keep the margins instead. */
+  main { flex: 1; }
+  .confirm, .paste, .error, .note, .empty { margin-left: 16px; margin-right: 16px; }
+  main > :first-child:not(.trace) { margin-top: 12px; }
+  main > .empty { margin-bottom: 12px; }
+  footer.site {
+    padding: 10px 16px; border-top: 1px solid var(--vscode-panel-border);
+    background: var(--vscode-editor-background);
+    font-size: 12px; color: var(--vscode-descriptionForeground); text-align: center;
+  }
+  footer.site a { color: var(--vscode-textLink-foreground); text-decoration: none; }
+  footer.site a:hover { text-decoration: underline; }
   .empty {
     border: 2px dashed var(--vscode-panel-border); border-radius: 8px;
     padding: 48px 20px; text-align: center; color: var(--vscode-descriptionForeground);
@@ -145,7 +190,8 @@
   .error {
     background: var(--vscode-inputValidation-errorBackground);
     border: 1px solid var(--vscode-inputValidation-errorBorder);
-    border-radius: 4px; padding: 8px 12px; margin-bottom: 12px; overflow-wrap: anywhere;
+    color: var(--vscode-inputValidation-errorForeground, var(--vscode-foreground));
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; overflow-wrap: anywhere;
   }
   .note {
     font-family: var(--vscode-editor-font-family); font-size: 12px;
@@ -164,8 +210,8 @@
   .confirm {
     background: var(--vscode-inputValidation-warningBackground);
     border: 1px solid var(--vscode-inputValidation-warningBorder);
-    color: var(--vscode-inputValidation-warningForeground);
-    border-radius: 4px; padding: 12px; margin-bottom: 12px;
+    color: var(--vscode-inputValidation-warningForeground, var(--vscode-foreground));
+    border-radius: 6px; padding: 12px 16px; margin-bottom: 12px;
     display: flex; flex-direction: column; gap: 8px;
   }
   .confirm p { margin: 0; }

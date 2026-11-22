@@ -1,4 +1,4 @@
-# Veil trace viewer
+# Veil Trace Viewer
 
 Shows the result of a [Veil](https://github.com/verse-lab/veil) model check
 in a browser, without VS Code. The trace is drawn by Veil's own component
@@ -111,7 +111,8 @@ in `index.html` by hand: the page then stops with an empty window.
 - `src/standalone.tsx`: the page around Veil's component (open, save).
 - `src/template.html`: the HTML and the colours. Veil's component uses the
   colours of the VS Code theme, so the template gives the values of the
-  default light and dark themes.
+  GitHub Light Default and GitHub Dark Default themes, the second for a
+  system in dark mode.
 
 ## Licenses
 
