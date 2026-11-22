@@ -55,12 +55,16 @@
     --vscode-button-background: #1f883d;
     --vscode-button-foreground: #ffffff;
     --vscode-button-hoverBackground: #1a7f37;
-    --vscode-inputValidation-errorBackground: #f2dede; /* default */
-    --vscode-inputValidation-errorBorder: #be1100; /* default */
-    --vscode-inputValidation-warningBackground: #f6f5d2; /* default */
-    --vscode-inputValidation-warningBorder: #b89500; /* default */
-    --vscode-inputValidation-infoBackground: #d6ecf2; /* default */
-    --vscode-inputValidation-infoBorder: #007acc; /* default */
+    /* Error, warning and info: the theme sets none, so VS Code would use its
+       defaults (#f2dede/#be1100, #f6f5d2/#b89500, #d6ecf2/#007acc). These
+       are instead the colours of GitHub's own alerts (Primer: the subtle
+       colour as fill, the muted colour as border). */
+    --vscode-inputValidation-errorBackground: #ffebe9;
+    --vscode-inputValidation-errorBorder: rgba(255, 129, 130, 0.4);
+    --vscode-inputValidation-warningBackground: #fff8c5;
+    --vscode-inputValidation-warningBorder: rgba(212, 167, 44, 0.4);
+    --vscode-inputValidation-infoBackground: #ddf4ff;
+    --vscode-inputValidation-infoBorder: rgba(84, 174, 255, 0.4);
     --vscode-editorHoverWidget-background: #ffffff; /* default: the widget background */
     --vscode-editorHoverWidget-foreground: #1f2328; /* default: the foreground */
     --vscode-editorHoverWidget-border: #c8c8c8; /* default */
@@ -102,12 +106,14 @@
       --vscode-button-background: #238636;
       --vscode-button-foreground: #ffffff;
       --vscode-button-hoverBackground: #2ea043;
-      --vscode-inputValidation-errorBackground: #5a1d1d; /* default */
-      --vscode-inputValidation-errorBorder: #be1100; /* default */
-      --vscode-inputValidation-warningBackground: #352a05; /* default */
-      --vscode-inputValidation-warningBorder: #b89500; /* default */
-      --vscode-inputValidation-infoBackground: #063b49; /* default */
-      --vscode-inputValidation-infoBorder: #007acc; /* default */
+      /* GitHub's alerts, as for the light theme (VS Code's defaults would be
+         #5a1d1d/#be1100, #352a05/#b89500, #063b49/#007acc). */
+      --vscode-inputValidation-errorBackground: rgba(248, 81, 73, 0.1);
+      --vscode-inputValidation-errorBorder: rgba(248, 81, 73, 0.4);
+      --vscode-inputValidation-warningBackground: rgba(187, 128, 9, 0.15);
+      --vscode-inputValidation-warningBorder: rgba(187, 128, 9, 0.4);
+      --vscode-inputValidation-infoBackground: rgba(56, 139, 253, 0.1);
+      --vscode-inputValidation-infoBorder: rgba(56, 139, 253, 0.4);
       --vscode-editorHoverWidget-background: #161b22; /* default: the widget background */
       --vscode-editorHoverWidget-foreground: #e6edf3; /* default: the foreground */
       --vscode-editorHoverWidget-border: #454545; /* default */
